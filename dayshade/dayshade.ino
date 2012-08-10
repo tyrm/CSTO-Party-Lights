@@ -1,3 +1,7 @@
+//Import Libraries
+#include "SPI.h"
+#include "Adafruit_WS2801.h"
+
 //Init Light Pixels
 int dataPin  = 2;
 int clockPin = 3;
