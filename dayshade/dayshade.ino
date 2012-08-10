@@ -4,8 +4,8 @@ int clockPin = 3;
 Adafruit_WS2801 dayshade = Adafruit_WS2801(140, dataPin, clockPin, WS2801_GRB);
 
 void setup() {
-  strip.begin(); 
-  strip.show(); // Update LED contents, to start they are all 'off'
+  dayshade.begin(); 
+  dayshade.show(); // Update LED contents, to start they are all 'off'
   
   
 }
