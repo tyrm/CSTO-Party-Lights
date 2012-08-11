@@ -2,10 +2,27 @@
 #include "SPI.h"
 #include "Adafruit_WS2801.h"
 
+//Assign Pins
+  //Ditigal
+int modeInterupt = 2; //Interupt Pin
+int dataPin  = 4; //Light
+int clockPin = 5;
+  //Analog
+//int spectrumLeft = 0; //Unused in this version
+//int spectrumRight = 1; //Unused in this version
+int knoba = 2;
+int knobb = 3;
+
 //Init Light Pixels
-int dataPin  = 2;
-int clockPin = 3;
-Adafruit_WS2801 dayshade = Adafruit_WS2801(140, dataPin, clockPin, WS2801_GRB);
+int numPixels = 140;
+Adafruit_WS2801 dayshade = Adafruit_WS2801(numPixels, dataPin, clockPin, WS2801_GRB);
+
+//Init Global Variables
+int mode = 0; //What program is running
+int analoga = 0;
+int agalogb = 0;
+
+//
 
 void setup() {
   dayshade.begin(); 
@@ -15,8 +32,36 @@ void setup() {
 }
 
 void loop() {
-  
+  switch (mode) {
+    case 0:
+      makeFire();
+      break;
+    case 1:
+      break;
+  }
 }
+
+//************************************************ Programs *************************************************//
+/***************** Make Fire *****************\
+| A faux fire effect.  |
+| analoga: 
+\*****************************************/
+void makeFire(){
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Color(random(120)+135,random(40),0));
+    int anum = random(2);
+    if(anum==1){
+      dayshade.setPixelColor(i,Color(0,0,0));
+    }
+    int anums = random(400);
+    if(anums==1){
+      dayshade.setPixelColor(i,Color(255,255,0));
+    }
+  }
+  dayshade.show();   // write all the pixels out
+  delay(60);
+}
+
 
 //************************************************ Functions ************************************************//
 
