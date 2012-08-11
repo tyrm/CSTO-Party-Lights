@@ -45,6 +45,8 @@ void loop() {
     case 2:
       white(0);
       break;
+    case 3:
+      fillAll(0);
   }
 }
 
@@ -100,6 +102,19 @@ void sparkle(int likelyhood,int speedArg){
 void white(int shade){
   for(int i=0; i<numPixels; i++){
     dayshade.setPixelColor(i,Color(255,map(shade,0,1023,175,255),map(shade,0,1023,140,255)));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(500);
+}
+/************ Fill All ************\
+| A fill of color for all pixels.  |
+| analoga: Color Hue               |
+\**********************************/
+void fillAll(int argHue){
+  byte WheelPos = map(argHue,0,1023,0,255);
+  
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Wheel(WheelPos));
   }
   dayshade.show();   // write all the pixels out
   delay(500);
