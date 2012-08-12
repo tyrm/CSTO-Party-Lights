@@ -19,10 +19,7 @@ Adafruit_WS2801 dayshade = Adafruit_WS2801(numPixels, dataPin, clockPin, WS2801_
 
 //Init Global Variables
 int mode = 0; //What program is running
-int analoga = 0;
-int agalogb = 0;
 
-//
 
 void setup() {
   dayshade.begin(); 
@@ -37,17 +34,28 @@ void setup() {
 void loop() {
   switch (mode) {
     case 0:
-      makeFire();
+      makeFire(analogRead(knoba));
       break;
     case 1:
-      sparkle(1023,512);
+      sparkle(analogRead(knoba),analogRead(knobb)); //Default 1023,512
       break;
     case 2:
-      white(0);
+      white(analogRead(knoba)); //Default 0
       break;
     case 3:
-      fillAll(0);
+      fillAll(analogRead(knoba),analogRead(knobb)); //Default 0
+      break;
+    case 4:
+      rainbowChase(analogRead(knoba));
+      break;
+    case 5:
+      police(analogRead(knoba),analogRead(knobb));
+      break;
+    case 6:
+      strobe(analogRead(knoba));
+      break;
   }
+  if(digitalRead(modeInterupt)){changeMode();};
 }
 
 //************************************************ Programs *************************************************//
@@ -55,20 +63,33 @@ void loop() {
 | A faux fire effect.  |
 | analoga:             |
 \**********************/
-void makeFire(){
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Color(random(120)+135,random(40),0));
-    int anum = random(2);
-    if(anum==1){
-      dayshade.setPixelColor(i,Color(0,0,0));
+void makeFire(int hue){
+  if(hue>512){
+    for(int i=0; i<numPixels; i++){
+      dayshade.setPixelColor(i,Color(random(120)+135,random(40),0));
+      int anum = random(2);
+      if(anum==1){
+        dayshade.setPixelColor(i,Color(0,0,0));
+      }
+      int anums = random(400);
+      if(anums==1){
+        dayshade.setPixelColor(i,Color(255,255,0));
+      }
     }
-    int anums = random(400);
-    if(anums==1){
-      dayshade.setPixelColor(i,Color(255,255,0));
+  } else {
+    for(int i=0; i<numPixels; i++){
+      dayshade.setPixelColor(i,Color(0,random(255),random(255)));
+      int anum = random(2);
+      if(anum==1){
+        dayshade.setPixelColor(i,Color(0,0,0));
+      }
+      int anums = random(400);
+      if(anums==1){
+        dayshade.setPixelColor(i,Color(0,255,255));
+      }
     }
   }
   dayshade.show();   // write all the pixels out
-  delay(60);
 }
 /***************************** Sparkle ****************************\
 | Makes a random pixel white at random interals that slowly plays  |
@@ -76,11 +97,15 @@ void makeFire(){
 \******************************************************************/
 void sparkle(int likelyhood,int speedArg){
   static byte drop[numPixels];
-  int theSpeed = map(speedArg,0,1023,1,10);
+  int theSpeed = map(speedArg,0,1023,1,20);
   
   // This range may seem random, but my favourite setting is at 10
   // and I wanted 10 to be exatly in the middle.
-  if(random(map(likelyhood,0,1023,2,18)==1)){
+  if(random(map(likelyhood,0,1023,1,18))==0){
+    drop[random(numPixels)]=255;
+    drop[random(numPixels)]=255;
+    drop[random(numPixels)]=255;
+    drop[random(numPixels)]=255;
     drop[random(numPixels)]=255;
   }
   for(int i=0; i<numPixels; i++){
@@ -93,7 +118,6 @@ void sparkle(int likelyhood,int speedArg){
     };
   }
   dayshade.show();   // write all the pixels out
-  delay(10);
 }
 /****************** White ******************\
 | A full white fill for full illimunation.  |
@@ -104,24 +128,125 @@ void white(int shade){
     dayshade.setPixelColor(i,Color(255,map(shade,0,1023,175,255),map(shade,0,1023,140,255)));
   }
   dayshade.show();   // write all the pixels out
-  delay(500);
 }
 /************ Fill All ************\
 | A fill of color for all pixels.  |
 | analoga: Color Hue               |
 \**********************************/
-void fillAll(int argHue){
+void fillAll(int argHue, int argSpeed){
+  static byte offset = 0;
+  
   byte WheelPos = map(argHue,0,1023,0,255);
+  offset+=map(argSpeed,0,1023,0,20);
   
   for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Wheel(WheelPos));
+    dayshade.setPixelColor(i,Wheel(WheelPos+offset));
   }
   dayshade.show();   // write all the pixels out
-  delay(500);
+}
+/************* Rainbow Chase ************\
+| A breezy sexy rainbow chase.           |
+| argSpeed: The speed at which it cycles |
+\****************************************/
+void rainbowChase(int argSpeed){
+  static byte offset = 0;
+  
+  for(int i=0;i<20;i++){
+    dayshade.setPixelColor(i, Wheel( ((i * 256 / 20) + offset) % 256) );
+    dayshade.setPixelColor(i+20, Wheel( ((i * 256 / 20) + offset) % 256) );
+    dayshade.setPixelColor(i+40, Wheel( ((i * 256 / 20) + offset) % 256) );
+    dayshade.setPixelColor(i+60, Wheel( ((i * 256 / 20) + offset) % 256) );
+    dayshade.setPixelColor(99-i, Wheel( ((i * 256 / 20) + offset) % 256) );
+    dayshade.setPixelColor(119-i, Wheel( ((i * 256 / 20) + offset) % 256) );
+    dayshade.setPixelColor(139-i, Wheel( ((i * 256 / 20) + offset) % 256) );
+  }
+  dayshade.show();
+  offset++;
+  delay(map(argSpeed,0,1023,1,50));
+}
+
+/******** Police ********\
+| Makes Police Lights :D |
+| analoga:               |
+\************************/
+void police(int argColorA, int argColorB){
+  byte colorA = map(argColorA,0,1023,0,255);
+  byte colorB = map(argColorB,0,1023,0,255);
+  
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Wheel(colorA));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(10);
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Color(0,00,00));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(20);
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Wheel(colorA));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(10);
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Color(0,0,0));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(160);
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Wheel(colorB));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(10);
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Color(0,00,00));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(20);
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Wheel(colorB));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(10);
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Color(0,0,0));
+  }
+  dayshade.show();   // write all the pixels out
+  delay(160);
+}
+/******** Strobe ********\
+|                        |
+| analoga:               |
+\************************/
+void strobe(int argSpeed){
+  for(int i=0;i<numPixels/20;i++){
+    dayshade.setPixelColor(random(20)+(i*20),Wheel(random(256)));
+  }
+  dayshade.show();
+  delay(10);
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Color(0,0,0));
+  }
+  dayshade.show();
+  delay(map(argSpeed,0,1023,10,250));
 }
 
 //************************************************ Functions ************************************************//
-
+/***************** changeMode *****************\
+| This funation changes the mode of the lighs. |
+\**********************************************/
+void changeMode() {
+  if(mode==6){
+    mode=0;
+  } else {
+    mode++;
+  }
+  for(int i=0; i<numPixels; i++){
+    dayshade.setPixelColor(i,Color(0,0,0));
+  }
+  dayshade.show();
+  while(digitalRead(2)==HIGH){};
+}
 /***************** Color *****************\
 | Create a 24 bit color value from R,G,B. |
 \*****************************************/
