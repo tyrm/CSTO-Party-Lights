@@ -26,12 +26,22 @@ void setup() {
   dayshade.show(); // Update LED contents, to start they are all 'off'
   
   randomSeed(analogRead(random(8)));
+// clamb: not sure why doing an analog read of random(pins 0-8)? Best to just choose a 
+// known unconnected pin
 }
 
 // You may have noticed I'm using 0-1023 as my range, this is because this is the
 // range returned by analogRead(). Since the range is constant it makes sense for
 // the function to assuming the incoming range and map() it to usable ranges.
 void loop() {
+// clamb: perhaps move 'mode' to static to this function to reduce globals
+// and have the assignment at bottom of function moved to the top.
+// finally; have 'changeMode()' return the new value of mode. :)
+
+// clamb: i'd be tempted to move all the analogRead() methods outside the switch
+// and use local variables so it is easier to debug / read. 
+// However, you would end up with some extra analogRead(knobb) calls. 
+// I think i'd err on readability/debug vs speed in this case.
   switch (mode) {
     case 0:
       makeFire(analogRead(knoba));
@@ -55,6 +65,7 @@ void loop() {
       strobe(analogRead(knoba));
       break;
   }
+// clamb: move the action of the 'if' to its own line to make it easier to read
   if(digitalRead(modeInterupt)){changeMode();};
 }
 
@@ -64,13 +75,17 @@ void loop() {
 | analoga:             |
 \**********************/
 void makeFire(int hue){
+// clamb: where did this 512 come from ? half the dial ?
   if(hue>512){
     for(int i=0; i<numPixels; i++){
       dayshade.setPixelColor(i,Color(random(120)+135,random(40),0));
+// clamb: because you never use anum again; just do an if off of it:
+// if(random(2) == 1)
       int anum = random(2);
       if(anum==1){
         dayshade.setPixelColor(i,Color(0,0,0));
       }
+// clamb: same here.... also, why 400 ?
       int anums = random(400);
       if(anums==1){
         dayshade.setPixelColor(i,Color(255,255,0));
@@ -91,6 +106,7 @@ void makeFire(int hue){
   }
   dayshade.show();   // write all the pixels out
 }
+
 /***************************** Sparkle ****************************\
 | Makes a random pixel white at random interals that slowly plays  |
 | analoga:                                                         |
@@ -119,6 +135,7 @@ void sparkle(int likelyhood,int speedArg){
   }
   dayshade.show();   // write all the pixels out
 }
+
 /****************** White ******************\
 | A full white fill for full illimunation.  |
 | analoga:                                  |
@@ -129,12 +146,13 @@ void white(int shade){
   }
   dayshade.show();   // write all the pixels out
 }
+
 /************ Fill All ************\
 | A fill of color for all pixels.  |
 | analoga: Color Hue               |
 \**********************************/
 void fillAll(int argHue, int argSpeed){
-  static byte offset = 0;
+static byte offset = 0;
   
   byte WheelPos = map(argHue,0,1023,0,255);
   offset+=map(argSpeed,0,1023,0,20);
@@ -144,6 +162,7 @@ void fillAll(int argHue, int argSpeed){
   }
   dayshade.show();   // write all the pixels out
 }
+
 /************* Rainbow Chase ************\
 | A breezy sexy rainbow chase.           |
 | argSpeed: The speed at which it cycles |
@@ -151,6 +170,7 @@ void fillAll(int argHue, int argSpeed){
 void rainbowChase(int argSpeed){
   static byte offset = 0;
   
+// clamb: why is this magic 20 ?
   for(int i=0;i<20;i++){
     dayshade.setPixelColor(i, Wheel( ((i * 256 / 20) + offset) % 256) );
     dayshade.setPixelColor(i+20, Wheel( ((i * 256 / 20) + offset) % 256) );
@@ -172,7 +192,8 @@ void rainbowChase(int argSpeed){
 void police(int argColorA, int argColorB){
   byte colorA = map(argColorA,0,1023,0,255);
   byte colorB = map(argColorB,0,1023,0,255);
-  
+
+// clamb: i see the pattern but coudl use a little more description of what is going on !
   for(int i=0; i<numPixels; i++){
     dayshade.setPixelColor(i,Wheel(colorA));
   }
@@ -214,6 +235,7 @@ void police(int argColorA, int argColorB){
   dayshade.show();   // write all the pixels out
   delay(160);
 }
+
 /******** Strobe ********\
 |                        |
 | analoga:               |
@@ -224,6 +246,7 @@ void strobe(int argSpeed){
   }
   dayshade.show();
   delay(10);
+
   for(int i=0; i<numPixels; i++){
     dayshade.setPixelColor(i,Color(0,0,0));
   }
@@ -231,10 +254,12 @@ void strobe(int argSpeed){
   delay(map(argSpeed,0,1023,10,250));
 }
 
-//************************************************ Functions ************************************************//
+//************************************************ Util Functions ************************************************//
 /***************** changeMode *****************\
 | This funation changes the mode of the lighs. |
 \**********************************************/
+// clamb: i'd move control functions like this to the top of the loop() code
+// and keep the helper functions Color() and Wheel() down here :)
 void changeMode() {
   if(mode==6){
     mode=0;
