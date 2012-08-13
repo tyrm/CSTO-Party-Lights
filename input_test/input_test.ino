@@ -20,16 +20,18 @@ int agalogb = 0;
 void setup() {
   Serial.begin(9600);
   
-  attachInterrupt(modeInterupt, button, FALLING);
 }
 
 void loop() {
-  Serial.print(analogRead(knoba);
+  Serial.print(analogRead(knoba));
   Serial.print("  ");
-  Serial.println(analogRead(knobb);
+  Serial.println(analogRead(knobb));
   delay(1000);
+  if(digitalRead(2)==HIGH){button();};
 }
 
 void button() {
   Serial.println("boop");
+  
+  while(digitalRead(2)==HIGH){};
 }
