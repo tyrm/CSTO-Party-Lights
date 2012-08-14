@@ -195,50 +195,29 @@ void rainbowChase(int argSpeed){
 | analoga:               |
 \************************/
 void police(int argColorA, int argColorB){
-  byte colorA = map(argColorA,0,1023,0,255);
-  byte colorB = map(argColorB,0,1023,0,255);
+  byte color[2] = {map(argColorA,0,1023,0,255),map(argColorB,0,1023,0,255)};
 
 // clamb: i see the pattern but coudl use a little more description of what is going on !
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Wheel(colorA));
+  for(int k=0; k<2; k++){
+    for(int j=0; j<2; j++){
+      for(int i=0; i<numPixels; i++){
+        dayshade.setPixelColor(i,Wheel(color[k]));
+      }
+      dayshade.show();   // write all the pixels out
+      
+      delay(10);
+      for(int i=0; i<numPixels; i++){
+        dayshade.setPixelColor(i,Color(0,0,0));
+      }
+      dayshade.show();   // write all the pixels out
+      
+      if(j==1){
+        delay(160);
+      } else {
+        delay(20);
+      }
+    }
   }
-  dayshade.show();   // write all the pixels out
-  delay(10);
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Color(0,00,00));
-  }
-  dayshade.show();   // write all the pixels out
-  delay(20);
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Wheel(colorA));
-  }
-  dayshade.show();   // write all the pixels out
-  delay(10);
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Color(0,0,0));
-  }
-  dayshade.show();   // write all the pixels out
-  delay(160);
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Wheel(colorB));
-  }
-  dayshade.show();   // write all the pixels out
-  delay(10);
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Color(0,00,00));
-  }
-  dayshade.show();   // write all the pixels out
-  delay(20);
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Wheel(colorB));
-  }
-  dayshade.show();   // write all the pixels out
-  delay(10);
-  for(int i=0; i<numPixels; i++){
-    dayshade.setPixelColor(i,Color(0,0,0));
-  }
-  dayshade.show();   // write all the pixels out
-  delay(160);
 }
 
 /******** Strobe ********\
