@@ -5,8 +5,11 @@
 //Assign Pins
   //Ditigal
 const int modeInterupt = 2; //Interupt Pin
-const int dataPin  = 4; //Light
-const int clockPin = 5;
+//const int spectrumStep = 4; //Unused in this version
+//const int spectrumReset = 5; //Unused in this version
+const int dataPin  = 6; //Light
+const int clockPin = 7;
+const int psOn = 8;
   //Analog
 //int spectrumLeft = 0; //Unused in this version
 //int spectrumRight = 1; //Unused in this version
@@ -25,7 +28,9 @@ void setup() {
   dayshade.begin(); 
   dayshade.show(); // Update LED contents, to start they are all 'off'
   
-  randomSeed(analogRead(random(8)));
+  digitalWrite(psOn, LOW);
+  
+  randomSeed(analogRead(5));
 // clamb: not sure why doing an analog read of random(pins 0-8)? Best to just choose a 
 // known unconnected pin
 }
